@@ -14,7 +14,7 @@ glueContext = GlueContext(sc)
 spark = glueContext.spark_session
 job = Job(glueContext)
 job.init(args['JOB_NAME'], args)
-src_customer_df = spark.read.parquet("s3://capstone/target/cleansed_customer_data/")
+src_customer_df = spark.read.parquet("s3:/capstone-ravikumar/output/temp/cleansed_customer_data/")
 src_transaction_df = spark.sql("select * from capstone_project_db.transactions_dataset_csv")
 geo_dyn_df = glueContext.create_dynamic_frame.from_catalog(
     database="capstone_project_db",    table_name="geolocation_dataset_json")
@@ -31,7 +31,7 @@ sel_cust_trans_df = join_cust_trans_df.select(sel_cust_geo_df.customer_id, sel_c
 cust_year_df = sel_cust_trans_df.withColumn("created_year", date_format(to_date("created_at", "yyyy-MM-dd"), "yyyy"))
 cust_year_df.printSchema()
 cust_year_df.show()
-cust_year_df.write.mode("overwrite").partitionBy("state", "created_year").parquet("s3://capstone-project03/target/enriched_customer_data/")
+cust_year_df.write.mode("overwrite").partitionBy("state", "created_year").parquet("s3:/capstone-ravikumar/output/Modified_customer_data/")
 
 job.commit()
 
